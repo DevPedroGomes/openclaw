@@ -1,10 +1,11 @@
 import { html, nothing } from "lit";
+import type { AppViewState } from "./app-view-state.ts";
+import type { WizardStep } from "./types/studio-types.ts";
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 import { t } from "../i18n/index.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
-import type { AppViewState } from "./app-view-state.ts";
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
@@ -79,6 +80,8 @@ import { renderNodes } from "./views/nodes.ts";
 import { renderOverview } from "./views/overview.ts";
 import { renderSessions } from "./views/sessions.ts";
 import { renderSkills } from "./views/skills.ts";
+import { renderStudioDashboard } from "./views/studio-dashboard.ts";
+import { renderStudioWizard } from "./views/studio-wizard.ts";
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -324,6 +327,44 @@ export function renderApp(state: AppViewState) {
             ${isChat ? renderChatControls(state) : nothing}
           </div>
         </section>
+
+        ${
+          state.tab === "studio"
+            ? renderStudioWizard({
+                step: state.wizardStep,
+                data: state.wizardData,
+                saving: state.wizardSaving,
+                error: state.wizardError,
+                connected: state.connected,
+                whatsappQrDataUrl: state.whatsappLoginQrDataUrl,
+                whatsappMessage: state.whatsappLoginMessage,
+                whatsappConnected: state.whatsappLoginConnected,
+                whatsappBusy: state.whatsappBusy,
+                onStepChange: (step) => state.handleWizardStepChange(step),
+                onDataChange: (patch) => state.handleWizardDataChange(patch),
+                onFinish: () => state.handleWizardFinish(),
+                onWhatsAppStart: (force) => state.handleWhatsAppStart(force),
+                onWhatsAppWait: () => state.handleWhatsAppWait(),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "dashboard"
+            ? renderStudioDashboard({
+                loading: state.dashboardLoading,
+                data: state.dashboardData,
+                connected: state.connected,
+                onRefresh: () => state.handleDashboardRefresh(),
+                onOpenChat: () => state.setTab("chat"),
+                onEditSetup: (step: WizardStep) => {
+                  state.handleWizardStepChange(step);
+                  state.setTab("studio");
+                },
+                onOpenAdvanced: () => state.setTab("overview"),
+              })
+            : nothing
+        }
 
         ${
           state.tab === "overview"

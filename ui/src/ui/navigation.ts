@@ -1,23 +1,24 @@
-import { t } from "../i18n/index.ts";
 import type { IconName } from "./icons.js";
 
 export const TAB_GROUPS = [
-  { label: "chat", tabs: ["chat"] },
+  { label: "Studio", tabs: ["studio", "dashboard"] },
+  { label: "Chat", tabs: ["chat"] },
   {
-    label: "control",
-    tabs: ["overview", "channels", "instances", "sessions", "usage", "cron"],
+    label: "Control",
+    tabs: ["overview", "channels", "instances", "sessions", "cron"],
   },
-  { label: "agent", tabs: ["agents", "skills", "nodes"] },
-  { label: "settings", tabs: ["config", "debug", "logs"] },
+  { label: "Agent", tabs: ["agents", "skills", "nodes"] },
+  { label: "Settings", tabs: ["config", "debug", "logs"] },
 ] as const;
 
 export type Tab =
+  | "studio"
+  | "dashboard"
   | "agents"
   | "overview"
   | "channels"
   | "instances"
   | "sessions"
-  | "usage"
   | "cron"
   | "skills"
   | "nodes"
@@ -27,12 +28,13 @@ export type Tab =
   | "logs";
 
 const TAB_PATHS: Record<Tab, string> = {
+  studio: "/studio",
+  dashboard: "/dashboard",
   agents: "/agents",
   overview: "/overview",
   channels: "/channels",
   instances: "/instances",
   sessions: "/sessions",
-  usage: "/usage",
   cron: "/cron",
   skills: "/skills",
   nodes: "/nodes",
@@ -125,6 +127,10 @@ export function inferBasePathFromPathname(pathname: string): string {
 
 export function iconForTab(tab: Tab): IconName {
   switch (tab) {
+    case "studio":
+      return "wand";
+    case "dashboard":
+      return "home";
     case "agents":
       return "folder";
     case "chat":
@@ -137,8 +143,6 @@ export function iconForTab(tab: Tab): IconName {
       return "radio";
     case "sessions":
       return "fileText";
-    case "usage":
-      return "barChart";
     case "cron":
       return "loader";
     case "skills":
@@ -157,9 +161,71 @@ export function iconForTab(tab: Tab): IconName {
 }
 
 export function titleForTab(tab: Tab) {
-  return t(`tabs.${tab}`);
+  switch (tab) {
+    case "studio":
+      return "Setup";
+    case "dashboard":
+      return "Dashboard";
+    case "agents":
+      return "Agents";
+    case "overview":
+      return "Overview";
+    case "channels":
+      return "Channels";
+    case "instances":
+      return "Instances";
+    case "sessions":
+      return "Sessions";
+    case "cron":
+      return "Cron Jobs";
+    case "skills":
+      return "Skills";
+    case "nodes":
+      return "Nodes";
+    case "chat":
+      return "Chat";
+    case "config":
+      return "Config";
+    case "debug":
+      return "Debug";
+    case "logs":
+      return "Logs";
+    default:
+      return "Control";
+  }
 }
 
 export function subtitleForTab(tab: Tab) {
-  return t(`subtitles.${tab}`);
+  switch (tab) {
+    case "studio":
+      return "Configure your AI assistant step by step.";
+    case "dashboard":
+      return "Your assistant at a glance.";
+    case "agents":
+      return "Manage agent workspaces, tools, and identities.";
+    case "overview":
+      return "Gateway status, entry points, and a fast health read.";
+    case "channels":
+      return "Manage channels and settings.";
+    case "instances":
+      return "Presence beacons from connected clients and nodes.";
+    case "sessions":
+      return "Inspect active sessions and adjust per-session defaults.";
+    case "cron":
+      return "Schedule wakeups and recurring agent runs.";
+    case "skills":
+      return "Manage skill availability and API key injection.";
+    case "nodes":
+      return "Paired devices, capabilities, and command exposure.";
+    case "chat":
+      return "Direct gateway chat session for quick interventions.";
+    case "config":
+      return "Edit ~/.openclaw/openclaw.json safely.";
+    case "debug":
+      return "Gateway snapshots, events, and manual RPC calls.";
+    case "logs":
+      return "Live tail of the gateway file logs.";
+    default:
+      return "";
+  }
 }

@@ -1,3 +1,5 @@
+import type { OpenClawApp } from "./app.ts";
+import type { AgentsListResult } from "./types.ts";
 import { refreshChat } from "./app-chat.ts";
 import {
   startLogsPolling,
@@ -6,7 +8,6 @@ import {
   stopDebugPolling,
 } from "./app-polling.ts";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
-import type { OpenClawApp } from "./app.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents, loadToolsCatalog } from "./controllers/agents.ts";
@@ -37,7 +38,6 @@ import {
 import { saveSettings, type UiSettings } from "./storage.ts";
 import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
-import type { AgentsListResult } from "./types.ts";
 
 type SettingsHost = {
   settings: UiSettings;
@@ -129,6 +129,13 @@ export function applySettingsFromUrl(host: SettingsHost) {
     }
   }
 
+  const wizardRaw = params.get("wizard");
+  if (wizardRaw === "1" || wizardRaw === "true") {
+    host.tab = "studio" as Tab;
+    params.delete("wizard");
+    shouldCleanUrl = true;
+  }
+
   if (gatewayUrlRaw != null) {
     const gatewayUrl = gatewayUrlRaw.trim();
     if (gatewayUrl && gatewayUrl !== host.settings.gatewayUrl) {
@@ -184,6 +191,19 @@ export function setTheme(host: SettingsHost, next: ThemeMode, context?: ThemeTra
 }
 
 export async function refreshActiveTab(host: SettingsHost) {
+  if (host.tab === "studio") {
+    const app = host as unknown as OpenClawApp;
+    await Promise.all([loadConfig(app), loadChannels(app, false), loadAgents(app)]);
+  }
+  if (host.tab === "dashboard") {
+    const app = host as unknown as OpenClawApp;
+    await Promise.all([
+      loadDebug(app),
+      loadChannels(app, false),
+      loadAgents(app),
+      loadSessions(app),
+    ]);
+  }
   if (host.tab === "overview") {
     await loadOverview(host);
   }

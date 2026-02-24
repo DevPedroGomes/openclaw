@@ -26,6 +26,8 @@ describe("iconForTab", () => {
   });
 
   it("returns stable icons for known tabs", () => {
+    expect(iconForTab("studio")).toBe("wand");
+    expect(iconForTab("dashboard")).toBe("home");
     expect(iconForTab("chat")).toBe("messageSquare");
     expect(iconForTab("overview")).toBe("barChart");
     expect(iconForTab("channels")).toBe("link");
@@ -175,15 +177,49 @@ describe("inferBasePathFromPathname", () => {
 describe("TAB_GROUPS", () => {
   it("contains all expected groups", () => {
     const labels = TAB_GROUPS.map((g) => g.label);
+    expect(labels).toContain("Studio");
     expect(labels).toContain("Chat");
     expect(labels).toContain("Control");
     expect(labels).toContain("Agent");
     expect(labels).toContain("Settings");
   });
 
+  it("Studio group contains studio and dashboard", () => {
+    const studioGroup = TAB_GROUPS.find((g) => g.label === "Studio");
+    expect(studioGroup).toBeDefined();
+    expect(studioGroup!.tabs).toContain("studio");
+    expect(studioGroup!.tabs).toContain("dashboard");
+  });
+
   it("all tabs are unique", () => {
     const allTabs = TAB_GROUPS.flatMap((g) => g.tabs);
     const uniqueTabs = new Set(allTabs);
     expect(uniqueTabs.size).toBe(allTabs.length);
+  });
+});
+
+describe("studio tab routing", () => {
+  it("tabFromPath resolves /studio", () => {
+    expect(tabFromPath("/studio")).toBe("studio");
+  });
+
+  it("tabFromPath resolves /dashboard", () => {
+    expect(tabFromPath("/dashboard")).toBe("dashboard");
+  });
+
+  it("pathForTab returns /studio", () => {
+    expect(pathForTab("studio")).toBe("/studio");
+  });
+
+  it("pathForTab returns /dashboard", () => {
+    expect(pathForTab("dashboard")).toBe("/dashboard");
+  });
+
+  it("titleForTab returns Setup for studio", () => {
+    expect(titleForTab("studio")).toBe("Setup");
+  });
+
+  it("titleForTab returns Dashboard for dashboard", () => {
+    expect(titleForTab("dashboard")).toBe("Dashboard");
   });
 });
