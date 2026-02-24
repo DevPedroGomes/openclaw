@@ -59,6 +59,25 @@ describe("buildAgentConfigPatch", () => {
     const agent = (patch as any).agents.list[0];
     expect(agent.model).toBeUndefined();
   });
+
+  it("sets dmScope to per-channel-peer for multi-tenant isolation", () => {
+    const patch = buildAgentConfigPatch({}, "user-alice", "Alice", BASE_ENV);
+    expect((patch as any).agents.defaults.dmScope).toBe("per-channel-peer");
+  });
+
+  it("preserves existing agent defaults when adding dmScope", () => {
+    const currentConfig = {
+      agents: {
+        list: [{ id: "main" }],
+        defaults: { maxTurns: 10, model: { primary: "anthropic/claude-sonnet-4-20250514" } },
+      },
+    };
+    const patch = buildAgentConfigPatch(currentConfig, "user-alice", "Alice", BASE_ENV);
+    const defaults = (patch as any).agents.defaults;
+    expect(defaults.dmScope).toBe("per-channel-peer");
+    expect(defaults.maxTurns).toBe(10);
+    expect(defaults.model.primary).toBe("anthropic/claude-sonnet-4-20250514");
+  });
 });
 
 describe("buildByokProviderPatch", () => {

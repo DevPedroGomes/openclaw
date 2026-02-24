@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { buildScopedConfigPatch, validateConfigPatch } from "../src/ws/config-scoping.js";
+import {
+  buildWhatsAppChannelPatch,
+  buildTelegramChannelPatch,
+  tenantAccountId,
+} from "../src/provisioning/config-builder.js";
 
 const AGENT_ID = "user-alice123";
 
@@ -119,5 +124,95 @@ describe("validateConfigPatch", () => {
 
   it("rejects node config", () => {
     expect(validateConfigPatch({ node: {} }, AGENT_ID)).toBe(false);
+  });
+});
+
+describe("tenantAccountId", () => {
+  it("generates whatsapp account id", () => {
+    expect(tenantAccountId(AGENT_ID, "whatsapp")).toBe(`${AGENT_ID}-wa`);
+  });
+
+  it("generates telegram account id", () => {
+    expect(tenantAccountId(AGENT_ID, "telegram")).toBe(`${AGENT_ID}-tg`);
+  });
+
+  it("generates discord account id", () => {
+    expect(tenantAccountId(AGENT_ID, "discord")).toBe(`${AGENT_ID}-dc`);
+  });
+
+  it("uses channel name as fallback suffix", () => {
+    expect(tenantAccountId(AGENT_ID, "signal")).toBe(`${AGENT_ID}-signal`);
+  });
+});
+
+describe("buildWhatsAppChannelPatch", () => {
+  it("creates a whatsapp account and binding", () => {
+    const config = { channels: {}, bindings: [] };
+    const patch = buildWhatsAppChannelPatch(config, AGENT_ID);
+
+    const waAccounts = (patch as any).channels.whatsapp.accounts;
+    const accountId = `${AGENT_ID}-wa`;
+    expect(waAccounts[accountId]).toEqual({ dmPolicy: "pairing" });
+
+    const bindings = (patch as any).bindings;
+    expect(bindings).toHaveLength(1);
+    expect(bindings[0]).toEqual({
+      agentId: AGENT_ID,
+      match: { channel: "whatsapp", accountId },
+    });
+  });
+
+  it("returns empty patch if account already exists", () => {
+    const accountId = `${AGENT_ID}-wa`;
+    const config = {
+      channels: { whatsapp: { accounts: { [accountId]: {} } } },
+      bindings: [],
+    };
+    const patch = buildWhatsAppChannelPatch(config, AGENT_ID);
+    expect(patch).toEqual({});
+  });
+
+  it("preserves existing accounts and bindings", () => {
+    const config = {
+      channels: { whatsapp: { accounts: { "other-wa": {} } } },
+      bindings: [{ agentId: "other", match: { channel: "whatsapp", accountId: "other-wa" } }],
+    };
+    const patch = buildWhatsAppChannelPatch(config, AGENT_ID);
+
+    const accounts = (patch as any).channels.whatsapp.accounts;
+    expect(accounts["other-wa"]).toBeDefined();
+    expect(accounts[`${AGENT_ID}-wa`]).toBeDefined();
+
+    const bindings = (patch as any).bindings;
+    expect(bindings).toHaveLength(2);
+  });
+});
+
+describe("buildTelegramChannelPatch", () => {
+  it("creates a telegram account with botToken and binding", () => {
+    const config = { channels: {}, bindings: [] };
+    const patch = buildTelegramChannelPatch(config, AGENT_ID, "123:ABC");
+
+    const accountId = `${AGENT_ID}-tg`;
+    const tgAccounts = (patch as any).channels.telegram.accounts;
+    expect(tgAccounts[accountId]).toEqual({ botToken: "123:ABC", dmPolicy: "pairing" });
+
+    const bindings = (patch as any).bindings;
+    expect(bindings).toHaveLength(1);
+    expect(bindings[0]).toEqual({
+      agentId: AGENT_ID,
+      match: { channel: "telegram", accountId },
+    });
+  });
+
+  it("does not duplicate binding if already exists", () => {
+    const accountId = `${AGENT_ID}-tg`;
+    const config = {
+      channels: { telegram: { accounts: {} } },
+      bindings: [{ agentId: AGENT_ID, match: { channel: "telegram", accountId } }],
+    };
+    const patch = buildTelegramChannelPatch(config, AGENT_ID, "123:ABC");
+    const bindings = (patch as any).bindings;
+    expect(bindings).toHaveLength(1);
   });
 });

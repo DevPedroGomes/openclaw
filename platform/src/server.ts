@@ -8,6 +8,7 @@ import { errorHandler } from "./middleware/error-handler.js";
 import { createRateLimiter } from "./middleware/rate-limit.js";
 import { createApiKeyRoutes } from "./routes/api-key-routes.js";
 import { createAuthRoutes } from "./routes/auth-routes.js";
+import { createChannelRoutes } from "./routes/channel-routes.js";
 import { createHealthRoutes } from "./routes/health-routes.js";
 import { createTenantRoutes } from "./routes/tenant-routes.js";
 import { serveSpa } from "./ui/serve-spa.js";
@@ -39,6 +40,9 @@ export function createApp(ctx: AppContext) {
 
   // API key management (protected)
   app.route("/api", createApiKeyRoutes(ctx));
+
+  // Channel provisioning (protected)
+  app.route("/api", createChannelRoutes(ctx));
 
   // WebSocket proxy
   createWsProxy(app, ctx);

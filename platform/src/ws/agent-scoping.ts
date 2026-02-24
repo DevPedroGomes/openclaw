@@ -18,6 +18,12 @@ export function scopeAgentRequest(frame: RequestFrame, agentId: string): Request
     return { ...frame, params };
   }
 
+  // web.login.* — inject tenant's WhatsApp accountId
+  if (method.startsWith("web.login.")) {
+    params.accountId = `${agentId}-wa`;
+    return { ...frame, params };
+  }
+
   // sessions.* — inject agent prefix for session keys
   if (method.startsWith("sessions.")) {
     if (typeof params.key === "string" && !params.key.startsWith(`${agentId}/`)) {

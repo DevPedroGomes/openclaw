@@ -77,10 +77,45 @@ describe("scopeAgentRequest", () => {
     expect(result.params?.agentId).toBe(AGENT_ID);
   });
 
-  it("returns frame unchanged for non-scoped methods", () => {
+  it("injects accountId on web.login.start", () => {
     const frame: RequestFrame = {
       type: "req",
       id: "7",
+      method: "web.login.start",
+      params: { force: true },
+    };
+    const result = scopeAgentRequest(frame, AGENT_ID);
+    expect(result.params?.accountId).toBe(`${AGENT_ID}-wa`);
+    expect(result.params?.force).toBe(true);
+  });
+
+  it("injects accountId on web.login.wait", () => {
+    const frame: RequestFrame = {
+      type: "req",
+      id: "8",
+      method: "web.login.wait",
+      params: { timeoutMs: 60000 },
+    };
+    const result = scopeAgentRequest(frame, AGENT_ID);
+    expect(result.params?.accountId).toBe(`${AGENT_ID}-wa`);
+    expect(result.params?.timeoutMs).toBe(60000);
+  });
+
+  it("overwrites user-supplied accountId on web.login.start", () => {
+    const frame: RequestFrame = {
+      type: "req",
+      id: "9",
+      method: "web.login.start",
+      params: { accountId: "hacker-account" },
+    };
+    const result = scopeAgentRequest(frame, AGENT_ID);
+    expect(result.params?.accountId).toBe(`${AGENT_ID}-wa`);
+  });
+
+  it("returns frame unchanged for non-scoped methods", () => {
+    const frame: RequestFrame = {
+      type: "req",
+      id: "10",
       method: "health",
       params: {},
     };

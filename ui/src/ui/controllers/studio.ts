@@ -2,6 +2,39 @@ import type { GatewayBrowserClient } from "../gateway.ts";
 import type { WizardStep, WizardData, DashboardData } from "../types/studio-types.ts";
 import { PERSONALITY_TEMPLATES } from "../data/personality-templates.ts";
 
+declare global {
+  interface Window {
+    __OPENCLAW_PLATFORM_MODE__?: boolean;
+    __OPENCLAW_PLATFORM_API_URL__?: string;
+  }
+}
+
+function getPlatformApiUrl(): string | null {
+  if (typeof window !== "undefined" && window.__OPENCLAW_PLATFORM_MODE__) {
+    return window.__OPENCLAW_PLATFORM_API_URL__ ?? null;
+  }
+  return null;
+}
+
+// Provision a channel via the platform REST API (creates account + binding in gateway)
+async function provisionChannel(
+  channel: string,
+  body: Record<string, unknown> = {},
+): Promise<void> {
+  const apiUrl = getPlatformApiUrl();
+  if (!apiUrl) return; // not in platform mode — skip
+  const res = await fetch(`${apiUrl}/channels/${channel}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((err as { error?: string }).error ?? `Failed to provision ${channel}`);
+  }
+}
+
 export type StudioState = {
   client: GatewayBrowserClient | null;
   connected: boolean;
@@ -115,12 +148,12 @@ export async function applyWizard(state: StudioState) {
       }
     }
 
-    // Channel tokens
-    if (data.channels.telegram.enabled && data.channels.telegram.token) {
-      patch["channels.telegram.token"] = data.channels.telegram.token;
+    // Provision channels via platform REST API (creates accounts + bindings)
+    if (data.channels.whatsapp.enabled) {
+      await provisionChannel("whatsapp");
     }
-    if (data.channels.discord.enabled && data.channels.discord.token) {
-      patch["channels.discord.token"] = data.channels.discord.token;
+    if (data.channels.telegram.enabled && data.channels.telegram.token) {
+      await provisionChannel("telegram", { botToken: data.channels.telegram.token });
     }
 
     // Security

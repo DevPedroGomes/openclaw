@@ -6,6 +6,11 @@ type AgentEntry = {
   [key: string]: unknown;
 };
 
+type BindingEntry = {
+  agentId: string;
+  match: Record<string, unknown>;
+};
+
 type GatewayConfig = {
   agents?: {
     list?: AgentEntry[];
@@ -14,6 +19,8 @@ type GatewayConfig = {
   models?: {
     providers?: Record<string, unknown>;
   };
+  bindings?: BindingEntry[];
+  channels?: Record<string, unknown>;
   [key: string]: unknown;
 };
 
@@ -43,6 +50,11 @@ export function buildAgentConfigPatch(
   const patch: Record<string, unknown> = {
     agents: {
       ...config.agents,
+      // Ensure each tenant's conversations are isolated per channel+peer
+      defaults: {
+        ...config.agents?.defaults,
+        dmScope: "per-channel-peer",
+      },
       list: [...existingList, newAgent],
     },
   };
@@ -103,5 +115,94 @@ export function buildByokProviderPatch(
       ...config.agents,
       list: agentsList,
     },
+  };
+}
+
+// Derive the tenant's channel accountId from their agentId
+export function tenantAccountId(agentId: string, channel: string): string {
+  const suffix: Record<string, string> = { whatsapp: "wa", telegram: "tg", discord: "dc" };
+  return `${agentId}-${suffix[channel] ?? channel}`;
+}
+
+// Build a config patch that adds a WhatsApp account + binding for a tenant
+export function buildWhatsAppChannelPatch(
+  currentConfig: Record<string, unknown>,
+  agentId: string,
+): Record<string, unknown> {
+  const config = currentConfig as GatewayConfig;
+  const accountId = tenantAccountId(agentId, "whatsapp");
+
+  // Get existing whatsapp config
+  const waConfig = (config.channels?.whatsapp ?? {}) as Record<string, unknown>;
+  const waAccounts = (waConfig.accounts ?? {}) as Record<string, unknown>;
+
+  // Skip if account already exists
+  if (waAccounts[accountId]) return {};
+
+  // Add binding (merge-patch replaces arrays, so include existing)
+  const existingBindings = config.bindings ?? [];
+  const hasBinding = existingBindings.some(
+    (b) => b.agentId === agentId && (b.match as Record<string, unknown>).accountId === accountId,
+  );
+
+  const bindings = hasBinding
+    ? existingBindings
+    : [
+        ...existingBindings,
+        { agentId, match: { channel: "whatsapp", accountId } },
+      ];
+
+  return {
+    channels: {
+      ...config.channels,
+      whatsapp: {
+        ...waConfig,
+        accounts: {
+          ...waAccounts,
+          [accountId]: { dmPolicy: "pairing" },
+        },
+      },
+    },
+    bindings,
+  };
+}
+
+// Build a config patch that adds a Telegram account + binding for a tenant
+export function buildTelegramChannelPatch(
+  currentConfig: Record<string, unknown>,
+  agentId: string,
+  botToken: string,
+): Record<string, unknown> {
+  const config = currentConfig as GatewayConfig;
+  const accountId = tenantAccountId(agentId, "telegram");
+
+  const tgConfig = (config.channels?.telegram ?? {}) as Record<string, unknown>;
+  const tgAccounts = (tgConfig.accounts ?? {}) as Record<string, unknown>;
+
+  // Add binding
+  const existingBindings = config.bindings ?? [];
+  const hasBinding = existingBindings.some(
+    (b) => b.agentId === agentId && (b.match as Record<string, unknown>).accountId === accountId,
+  );
+
+  const bindings = hasBinding
+    ? existingBindings
+    : [
+        ...existingBindings,
+        { agentId, match: { channel: "telegram", accountId } },
+      ];
+
+  return {
+    channels: {
+      ...config.channels,
+      telegram: {
+        ...tgConfig,
+        accounts: {
+          ...tgAccounts,
+          [accountId]: { botToken, dmPolicy: "pairing" },
+        },
+      },
+    },
+    bindings,
   };
 }

@@ -45,10 +45,14 @@ const METHOD_RULES: Record<string, MethodStrategy> = {
   "skills.update": "block",
   "skills.remove": "block",
 
-  // Blocked — admin/system operations
+  // Channels — scoped to tenant's account
   "channels.status": "allow",
   "channels.accounts": "block",
   "channels.config": "block",
+
+  // WhatsApp login — rewrite to inject tenant's accountId
+  "web.login.start": "rewrite",
+  "web.login.wait": "rewrite",
   "node.list": "block",
   "node.approve": "block",
   "node.reject": "block",

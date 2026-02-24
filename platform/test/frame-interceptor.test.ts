@@ -130,6 +130,31 @@ describe("interceptClientFrame", () => {
     const result = interceptClientFrame(frame, AGENT_ID);
     expect(result.action).toBe("forward");
   });
+
+  it("rewrites web.login.start with tenant accountId", () => {
+    const frame: Frame = {
+      type: "req",
+      id: "17",
+      method: "web.login.start",
+      params: { force: true },
+    };
+    const result = interceptClientFrame(frame, AGENT_ID);
+    expect(result.action).toBe("rewrite");
+    expect((result.frame?.params as any).accountId).toBe(`${AGENT_ID}-wa`);
+    expect((result.frame?.params as any).force).toBe(true);
+  });
+
+  it("rewrites web.login.wait with tenant accountId", () => {
+    const frame: Frame = {
+      type: "req",
+      id: "18",
+      method: "web.login.wait",
+      params: { timeoutMs: 120000 },
+    };
+    const result = interceptClientFrame(frame, AGENT_ID);
+    expect(result.action).toBe("rewrite");
+    expect((result.frame?.params as any).accountId).toBe(`${AGENT_ID}-wa`);
+  });
 });
 
 describe("interceptGatewayFrame", () => {
