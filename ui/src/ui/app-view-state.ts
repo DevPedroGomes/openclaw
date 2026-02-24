@@ -242,6 +242,7 @@ export type AppViewState = {
   paletteQuery: string;
   paletteActiveIndex: number;
   streamMode: boolean;
+  overviewShowGatewayToken: boolean;
   overviewLogLines: string[];
   overviewLogCursor: number;
   client: GatewayBrowserClient | null;

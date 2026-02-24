@@ -7,9 +7,7 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 8px;
-  margin-left: 4px;
-  margin-right: 16px;
+  margin: 0 0 12px;
 }
 
 /* User messages on right */
@@ -137,18 +135,18 @@
 
 /* Avatar Styles */
 .chat-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
-  background: color-mix(in srgb, var(--panel-strong) 95%, transparent);
+  background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
   display: grid;
   place-items: center;
   font-weight: 600;
   font-size: 13px;
   flex-shrink: 0;
-  align-self: flex-end; /* Align with last message in group */
-  margin-bottom: 4px; /* Optical alignment */
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .chat-avatar.user {
@@ -189,17 +187,21 @@ img.chat-avatar.chat-avatar--logo {
 .chat-bubble {
   position: relative;
   display: inline-block;
-  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
-  background: color-mix(in srgb, var(--card) 97%, transparent);
-  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  background: color-mix(in srgb, var(--bg-elevated) 82%, var(--panel));
+  border-radius: 10px;
   padding: 10px 14px;
-  box-shadow: inset 0 1px 0 var(--card-highlight);
+  box-shadow: none;
   transition:
     background 150ms ease-out,
     border-color 150ms ease-out,
     box-shadow 150ms ease-out;
   max-width: 100%;
   word-wrap: break-word;
+}
+
+.chat-group.assistant .chat-bubble {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 /* Hover actions toolbar (floats above the bubble) */
@@ -307,19 +309,20 @@ img.chat-avatar.chat-avatar--logo {
 }
 
 .chat-bubble:hover {
-  background: color-mix(in srgb, var(--card) 82%, var(--bg-hover));
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-sm);
+  background: color-mix(in srgb, var(--bg-elevated) 76%, var(--bg-hover));
+  border-color: color-mix(in srgb, var(--border-strong) 70%, transparent);
+  box-shadow: none;
 }
 
 /* User bubbles have different styling */
 .chat-group.user .chat-bubble {
-  background: color-mix(in srgb, var(--accent-subtle) 85%, var(--secondary));
-  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent-subtle) 70%, var(--bg-elevated));
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .chat-group.user .chat-bubble:hover {
-  background: var(--danger-subtle);
+  background: color-mix(in srgb, var(--accent-subtle) 60%, var(--bg-hover));
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 /* Streaming animation */

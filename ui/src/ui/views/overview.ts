@@ -40,9 +40,11 @@ export type OverviewProps = {
   eventLog: EventLogEntry[];
   overviewLogLines: string[];
   streamMode: boolean;
+  showGatewayToken: boolean;
   onSettingsChange: (next: UiSettings) => void;
   onPasswordChange: (next: string) => void;
   onSessionKeyChange: (next: string) => void;
+  onToggleGatewayTokenVisibility: () => void;
   onConnect: () => void;
   onRefresh: () => void;
   onNavigate: (tab: string) => void;
@@ -208,16 +210,26 @@ export function renderOverview(props: OverviewProps) {
               : html`
                 <label class="field">
                   <span>${t("overview.access.token")}</span>
-                  <input
-                    type="password"
-                    autocomplete="off"
-                    .value=${props.settings.token}
-                    @input=${(e: Event) => {
-                      const v = (e.target as HTMLInputElement).value;
-                      props.onSettingsChange({ ...props.settings, token: v });
-                    }}
-                    placeholder="OPENCLAW_GATEWAY_TOKEN"
-                  />
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <input
+                      type=${props.showGatewayToken ? "text" : "password"}
+                      autocomplete="off"
+                      style="flex: 1;"
+                      .value=${props.settings.token}
+                      @input=${(e: Event) => {
+                        const v = (e.target as HTMLInputElement).value;
+                        props.onSettingsChange({ ...props.settings, token: v });
+                      }}
+                      placeholder="OPENCLAW_GATEWAY_TOKEN"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn--sm"
+                      @click=${props.onToggleGatewayTokenVisibility}
+                    >
+                      ${props.showGatewayToken ? "Hide" : "Show"}
+                    </button>
+                  </div>
                 </label>
                 <label class="field">
                   <span>${t("overview.access.password")}</span>

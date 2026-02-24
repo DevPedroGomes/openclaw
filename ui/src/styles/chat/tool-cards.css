@@ -377,3 +377,99 @@
   font-family: inherit;
   font-size: inherit;
 }
+
+/* ===========================================
+   Collapsible Tool Message Body
+   =========================================== */
+
+.chat-tool-msg-collapse {
+  margin-top: 2px;
+}
+
+.chat-tool-msg-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  user-select: none;
+  list-style: none;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--bg-hover) 35%, transparent);
+  transition:
+    color 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.chat-tool-msg-summary::-webkit-details-marker {
+  display: none;
+}
+
+.chat-tool-msg-summary::before {
+  content: "▸";
+  font-size: 10px;
+  flex-shrink: 0;
+  transition: transform 150ms ease;
+}
+
+.chat-tool-msg-collapse[open] > .chat-tool-msg-summary::before {
+  transform: rotate(90deg);
+}
+
+.chat-tool-msg-summary:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg-hover) 60%, transparent);
+  border-color: color-mix(in srgb, var(--border-strong) 70%, transparent);
+}
+
+.chat-tool-msg-summary__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.chat-tool-msg-summary__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chat-tool-msg-summary__label {
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.chat-tool-msg-summary__names {
+  font-family: var(--mono);
+  font-size: 11px;
+  opacity: 0.85;
+  flex: 1 1 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.chat-tool-msg-summary__preview {
+  font-family: var(--mono);
+  font-size: 11px;
+  opacity: 0.85;
+  flex: 1 1 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.chat-tool-msg-body {
+  padding-top: 8px;
+}

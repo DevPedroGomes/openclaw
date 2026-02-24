@@ -339,11 +339,9 @@ export function renderApp(state: AppViewState) {
                 ${
                   isChat
                     ? renderChatSessionSelect(state)
-                    : state.tab === "skills"
-                      ? nothing
-                      : html`<div class="page-title">${titleForTab(state.tab)}</div>`
+                    : html`<div class="page-title">${titleForTab(state.tab)}</div>`
                 }
-                ${isChat || state.tab === "skills" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
+                ${isChat ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
               </div>
               <div class="page-meta">
                 ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}
@@ -374,6 +372,7 @@ export function renderApp(state: AppViewState) {
                 eventLog: state.eventLog,
                 overviewLogLines: state.overviewLogLines,
                 streamMode: state.streamMode,
+                showGatewayToken: state.overviewShowGatewayToken,
                 onSettingsChange: (next) => state.applySettings(next),
                 onPasswordChange: (next) => (state.password = next),
                 onSessionKeyChange: (next) => {
@@ -386,6 +385,9 @@ export function renderApp(state: AppViewState) {
                     lastActiveSessionKey: next,
                   });
                   void state.loadAssistantIdentity();
+                },
+                onToggleGatewayTokenVisibility: () => {
+                  state.overviewShowGatewayToken = !state.overviewShowGatewayToken;
                 },
                 onConnect: () => state.connect(),
                 onRefresh: () => state.loadOverview(),

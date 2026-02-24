@@ -353,6 +353,7 @@ export class OpenClawApp extends LitElement {
       return true;
     }
   })();
+  @state() overviewShowGatewayToken = false;
   @state() overviewLogLines: string[] = [];
   @state() overviewLogCursor = 0;
 

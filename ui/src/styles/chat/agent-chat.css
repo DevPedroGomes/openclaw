@@ -525,11 +525,12 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-width: 96%;
+  width: 100%;
+  max-width: var(--chat-max-width, 74rem);
   margin: 0 auto 24px;
   padding: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-elevated) 86%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
   border-radius: var(--radius-lg);
   flex-shrink: 0;
   overflow: hidden;

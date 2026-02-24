@@ -481,7 +481,8 @@
 }
 
 .sidebar-brand__title {
-  font-size: 22px;
+  /* Keep the brand readable when users resize the sidebar down to its minimum width. */
+  font-size: clamp(14px, calc(22px - (220px - var(--shell-nav-width)) * 0.15), 22px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;

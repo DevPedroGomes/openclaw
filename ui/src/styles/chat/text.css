@@ -52,8 +52,8 @@
 }
 
 .chat-text :where(:not(pre) > code) {
-  background: color-mix(in srgb, var(--secondary) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  background: color-mix(in srgb, var(--bg-hover) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   padding: 0.15em 0.42em;
   border-radius: 5px;
 }
@@ -61,9 +61,9 @@
 /* Code block wrapper with header + copy button */
 .code-block-wrapper {
   position: relative;
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--secondary) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-elevated) 86%, var(--panel));
   overflow: hidden;
 }
 
@@ -79,7 +79,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 4px 8px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 64%, transparent);
+  background: color-mix(in srgb, var(--bg) 35%, transparent);
   min-height: 28px;
 }
 
@@ -106,7 +107,7 @@
 }
 
 .code-block-copy:hover {
-  background: color-mix(in srgb, var(--border) 50%, transparent);
+  background: var(--bg-hover);
   color: var(--text);
 }
 
@@ -124,9 +125,9 @@
 }
 
 .chat-text :where(pre) {
-  background: color-mix(in srgb, var(--secondary) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
-  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--bg-elevated) 86%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 10px;
   padding: 10px 12px;
   overflow-x: auto;
 }

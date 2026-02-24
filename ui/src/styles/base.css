@@ -482,6 +482,7 @@
   --text: var(--vscode-text);
   --text-strong: var(--vscode-text);
   --chat-text: var(--vscode-text);
+  --chat-max-width: 74rem;
   --muted: var(--vscode-muted);
   --muted-strong: var(--vscode-subtle);
   --muted-foreground: var(--vscode-muted);
