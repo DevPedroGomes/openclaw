@@ -1,6 +1,7 @@
 packages:
   - .
   - ui
+  - platform
   - packages/*
   - extensions/*
 
