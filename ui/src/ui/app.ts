@@ -233,6 +233,10 @@ export class OpenClawApp extends LitElement {
   @state() automationSearchQuery = "";
   @state() automationActiveSection: string | null = null;
   @state() automationActiveSubsection: string | null = null;
+  @state() infrastructureFormMode: "form" | "raw" = "form";
+  @state() infrastructureSearchQuery = "";
+  @state() infrastructureActiveSection: string | null = null;
+  @state() infrastructureActiveSubsection: string | null = null;
 
   @state() channelsLoading = false;
   @state() channelsSnapshot: ChannelsStatusSnapshot | null = null;

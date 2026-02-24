@@ -125,6 +125,10 @@ export type AppViewState = {
   automationSearchQuery: string;
   automationActiveSection: string | null;
   automationActiveSubsection: string | null;
+  infrastructureFormMode: "form" | "raw";
+  infrastructureSearchQuery: string;
+  infrastructureActiveSection: string | null;
+  infrastructureActiveSubsection: string | null;
   channelsLoading: boolean;
   channelsSnapshot: ChannelsStatusSnapshot | null;
   channelsError: string | null;

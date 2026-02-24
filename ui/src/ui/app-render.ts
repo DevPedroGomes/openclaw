@@ -11,6 +11,7 @@ import {
   renderChatSessionSelect,
   renderSidebarThemeSelector,
   renderTab,
+  renderTopbarThemeModeToggle,
 } from "./app-render.helpers.ts";
 import type { AppViewState } from "./app-view-state.ts";
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
@@ -92,9 +93,19 @@ const AUTOMATION_SECTION_KEYS = [
   "approvals",
   "plugins",
 ] as const;
+const INFRASTRUCTURE_SECTION_KEYS = [
+  "gateway",
+  "web",
+  "browser",
+  "nodeHost",
+  "canvasHost",
+  "discovery",
+  "media",
+] as const;
 type CommunicationSectionKey = (typeof COMMUNICATION_SECTION_KEYS)[number];
 type AppearanceSectionKey = (typeof APPEARANCE_SECTION_KEYS)[number];
 type AutomationSectionKey = (typeof AUTOMATION_SECTION_KEYS)[number];
+type InfrastructureSectionKey = (typeof INFRASTRUCTURE_SECTION_KEYS)[number];
 
 const NAV_WIDTH_MIN = 180;
 const NAV_WIDTH_MAX = 400;
@@ -206,7 +217,9 @@ export function renderApp(state: AppViewState) {
           <span class="topbar-search__label">${t("common.search")}</span>
           <kbd class="topbar-search__kbd">⌘K</kbd>
         </button>
-        <div class="topbar-status"></div>
+        <div class="topbar-status">
+          ${renderTopbarThemeModeToggle(state)}
+        </div>
       </header>
       <div class="shell-nav">
       <aside class="sidebar ${state.settings.navCollapsed ? "sidebar--collapsed" : ""}">
@@ -1165,6 +1178,9 @@ export function renderApp(state: AppViewState) {
                     ) ||
                     AUTOMATION_SECTION_KEYS.includes(
                       state.configActiveSection as AutomationSectionKey,
+                    ) ||
+                    INFRASTRUCTURE_SECTION_KEYS.includes(
+                      state.configActiveSection as InfrastructureSectionKey,
                     ))
                     ? null
                     : state.configActiveSection,
@@ -1178,6 +1194,9 @@ export function renderApp(state: AppViewState) {
                     ) ||
                     AUTOMATION_SECTION_KEYS.includes(
                       state.configActiveSection as AutomationSectionKey,
+                    ) ||
+                    INFRASTRUCTURE_SECTION_KEYS.includes(
+                      state.configActiveSection as InfrastructureSectionKey,
                     ))
                     ? null
                     : state.configActiveSubsection,
@@ -1209,6 +1228,7 @@ export function renderApp(state: AppViewState) {
                 excludeSections: [
                   ...COMMUNICATION_SECTION_KEYS,
                   ...AUTOMATION_SECTION_KEYS,
+                  ...INFRASTRUCTURE_SECTION_KEYS,
                   "ui",
                   "wizard",
                 ],
@@ -1407,6 +1427,71 @@ export function renderApp(state: AppViewState) {
                 assistantName: state.assistantName,
                 navRootLabel: "Automation",
                 includeSections: [...AUTOMATION_SECTION_KEYS],
+                includeVirtualSections: false,
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "infrastructure"
+            ? renderConfig({
+                raw: state.configRaw,
+                originalRaw: state.configRawOriginal,
+                valid: state.configValid,
+                issues: state.configIssues,
+                loading: state.configLoading,
+                saving: state.configSaving,
+                applying: state.configApplying,
+                updating: state.updateRunning,
+                connected: state.connected,
+                schema: state.configSchema,
+                schemaLoading: state.configSchemaLoading,
+                uiHints: state.configUiHints,
+                formMode: state.infrastructureFormMode,
+                formValue: state.configForm,
+                originalValue: state.configFormOriginal,
+                searchQuery: state.infrastructureSearchQuery,
+                activeSection:
+                  state.infrastructureActiveSection &&
+                  !INFRASTRUCTURE_SECTION_KEYS.includes(
+                    state.infrastructureActiveSection as InfrastructureSectionKey,
+                  )
+                    ? null
+                    : state.infrastructureActiveSection,
+                activeSubsection:
+                  state.infrastructureActiveSection &&
+                  !INFRASTRUCTURE_SECTION_KEYS.includes(
+                    state.infrastructureActiveSection as InfrastructureSectionKey,
+                  )
+                    ? null
+                    : state.infrastructureActiveSubsection,
+                streamMode: state.streamMode,
+                onRawChange: (next) => {
+                  state.configRaw = next;
+                },
+                onFormModeChange: (mode) => (state.infrastructureFormMode = mode),
+                onFormPatch: (path, value) => updateConfigFormValue(state, path, value),
+                onSearchChange: (query) => (state.infrastructureSearchQuery = query),
+                onSectionChange: (section) => {
+                  state.infrastructureActiveSection = section;
+                  state.infrastructureActiveSubsection = null;
+                },
+                onSubsectionChange: (section) => (state.infrastructureActiveSubsection = section),
+                onReload: () => loadConfig(state),
+                onSave: () => saveConfig(state),
+                onApply: () => applyConfig(state),
+                onUpdate: () => runUpdate(state),
+                version:
+                  (state.hello?.snapshot as { server?: { version?: string } } | undefined)?.server
+                    ?.version ?? "",
+                theme: state.theme,
+                themeMode: state.themeMode,
+                setTheme: (t, ctx) => state.setTheme(t, ctx),
+                setThemeMode: (m, ctx) => state.setThemeMode(m, ctx),
+                gatewayUrl: state.settings.gatewayUrl,
+                assistantName: state.assistantName,
+                navRootLabel: "Infrastructure",
+                includeSections: [...INFRASTRUCTURE_SECTION_KEYS],
                 includeVirtualSections: false,
               })
             : nothing
